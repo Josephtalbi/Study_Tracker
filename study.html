@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyTracker - Notion & Calendar Inspired Study Workspace</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- FullCalendar CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css" rel="stylesheet">
+    <!-- Google Fonts Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.study.css">
+   
+</head>
+<body>
+
+    <div id="sidebar">
+        <div class="d-flex flex-column h-100 p-3">
+            <div class="d-flex align-items-center mb-4 px-2 pt-2">
+                <div class="bg-primary text-white rounded-3 p-2 me-2 d-flex align-items-center justify-content-center" style="width: 36px; height: 36px;">
+                    <i class="bi bi-book-half fs-5"></i>
+                </div>
+                <div>
+                    <h5 class="fw-bold mb-0 lh-1">StudyTracker</h5>
+                    <small class="text-muted fs-7">Notion Workspace</small>
+                </div>
+            </div>
+
+            <nav class="nav nav-pills flex-column mb-auto">
+                <a href="#" class="nav-link-custom active" data-view="dashboard">
+                    <i class="bi bi-grid-1x2-fill"></i> Dashboard
+                </a>
+                <a href="#" class="nav-link-custom" data-view="subjects">
+                    <i class="bi bi-journal-bookmark-fill"></i> Subjects
+                </a>
+                <a href="#" class="nav-link-custom" data-view="sessions">
+                    <i class="bi bi-clock-history"></i> Study Sessions
+                </a>
+                <a href="#" class="nav-link-custom" data-view="goals">
+                    <i class="bi bi-trophy-fill"></i> Goals
+                </a>
+                <a href="#" class="nav-link-custom" data-view="calendar">
+                    <i class="bi bi-calendar3"></i> Calendar
+                </a>
+                <a href="#" class="nav-link-custom" data-view="statistics">
+                    <i class="bi bi-bar-chart-line-fill"></i> Statistics
+                </a>
+                <a href="#" class="nav-link-custom" data-view="settings">
+                    <i class="bi bi-gear-fill"></i> Settings
+                </a>
+            </nav>
+
+            <hr class="my-3">
+
+            <div class="p-2 custom-card bg-body-tertiary mb-3 rounded-3">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="small fw-semibold text-muted">Weekly Goal</span>
+                    <span id="sidebar-goal-percent" class="small fw-bold text-primary">0%</span>
+                </div>
+                <div class="progress" style="height: 6px;">
+                    <div id="sidebar-goal-bar" class="progress-bar bg-primary" role="progressbar" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="d-flex align-items-center justify-content-between px-2 pt-2">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-moon-stars me-2"></i>
+                    <span class="small fw-medium">Dark Mode</span>
+                </div>
+                <div class="form-check form-switch m-0">
+                    <input class="form-check-input" type="checkbox" id="themeToggleSwitch">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-wrapper">
+        <header class="navbar navbar-expand bg-body border-bottom sticky-top px-4 py-2">
+            <button class="btn btn-outline-secondary d-lg-none me-3" id="sidebarToggleBtn">
+                <i class="bi bi-list fs-5"></i>
+            </button>
+
+            <!-- Instant Search Input -->
+            <div class="position-relative flex-grow-1 max-w-md me-auto" style="max-width: 320px;">
+                <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+                <input type="text" id="globalSearchInput" class="form-control ps-5 bg-body-tertiary rounded-pill border-0" placeholder="Search sessions, subjects, goals...">
+            </div>
+
+            <!-- Quick Action Dropdown -->
+            <div class="d-flex align-items-center gap-2">
+                <div class="dropdown">
+                    <button class="btn btn-primary rounded-pill px-3 dropdown-toggle d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-plus-lg"></i> <span class="d-none d-sm-inline">Quick Add</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                        <li><a class="dropdown-item py-2" href="#" onclick="ModalController.openSessionModal()"><i class="bi bi-clock me-2 text-primary"></i> Study Session</a></li>
+                        <li><a class="dropdown-item py-2" href="#" onclick="ModalController.openSubjectModal()"><i class="bi bi-journal me-2 text-success"></i> Subject</a></li>
+                        <li><a class="dropdown-item py-2" href="#" onclick="ModalController.openGoalModal()"><i class="bi bi-trophy me-2 text-warning"></i> Goal</a></li>
+                    </ul>
+                </div>
+            </div>
+        </header>
+
+        <main class="p-4 flex-grow-1">
+
+            <!-- ================= DASHBOARD VIEW ================= -->
+            <section id="view-dashboard" class="view-section active">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h3 class="fw-bold mb-1">Welcome back, Scholar 👋</h3>
+                        <p class="text-muted mb-0">Here is your study overview and productivity summary for today.</p>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-12 col-sm-6 col-xl-3">
+                        <div class="custom-card p-3 d-flex align-items-center">
+                            <div class="stat-card-icon bg-primary-subtle text-primary me-3">
+                                <i class="bi bi-journal-text"></i>
+                            </div>
+                            <div>
+                                <h6 class="text-muted mb-1 fs-7 fw-semibold">Total Subjects</h6>
+                                <h3 id="dash-total-subjects" class="fw-bold mb-0">0</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 col-xl-3">
+                        <div class="custom-card p-3 d-flex align-items-center">
+                            <div class="stat-card-icon bg-success-subtle text-success me-3">
+                                <i class="bi bi-hourglass-split"></i>
+                            </div>
+                            <div>
+                                <h6 class="text-muted mb-1 fs-7 fw-semibold">Total Study Hours</h6>
+                                <h3 id="dash-total-hours" class="fw-bold mb-0">0h</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 col-xl-3">
+                        <div class="custom-card p-3 d-flex align-items-center">
+                            <div class="stat-card-icon bg-info-subtle text-info me-3">
+                                <i class="bi bi-check-circle"></i>
+                            </div>
+                            <div>
+                                <h6 class="text-muted mb-1 fs-7 fw-semibold">Completed Sessions</h6>
+                                <h3 id="dash-completed-sessions" class="fw-bold mb-0">0</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-6 col-xl-3">
+                        <div class="custom-card p-3 d-flex align-items-center">
+                            <div class="stat-card-icon bg-warning-subtle text-warning me-3">
+                                <i class="bi bi-flag"></i>
+                            </div>
+                            <div>
+                                <h6 class="text-muted mb-1 fs-7 fw-semibold">Pending Goals</h6>
+                                <h3 id="dash-pending-goals" class="fw-bold mb-0">0</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-12 col-lg-7">
+                        <div class="custom-card p-4 h-100">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="fw-bold mb-0"><i class="bi bi-calendar-day text-primary me-2"></i>Today's Schedule</h5>
+                                <button class="btn btn-sm btn-light border" onclick="ModalController.openSessionModal()">
+                                    <i class="bi bi-plus-lg"></i> Add Session
+                                </button>
+                            </div>
+                            <div id="dash-today-schedule" class="d-flex flex-column gap-2">
+                                <!-- Populated dynamically -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-lg-5">
+                        <div class="custom-card p-4 h-100">
+                            <h5 class="fw-bold mb-3"><i class="bi bi-clock text-warning me-2"></i>Upcoming Sessions</h5>
+                            <div id="dash-upcoming-list" class="d-flex flex-column gap-2">
+                                <!-- Populated dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= SUBJECTS VIEW ================= -->
+            <section id="view-subjects" class="view-section">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h3 class="fw-bold mb-1">Subjects</h3>
+                        <p class="text-muted mb-0">Organize your academic courses, modules, and target topics.</p>
+                    </div>
+                    <button class="btn btn-primary rounded-pill px-3" onclick="ModalController.openSubjectModal()">
+                        <i class="bi bi-plus-lg me-1"></i> Add Subject
+                    </button>
+                </div>
+
+                <div id="subjects-grid" class="row g-3">
+                    <!-- Cards populated dynamically -->
+                </div>
+            </section>
+
+            <!-- ================= STUDY SESSIONS VIEW ================= -->
+            <section id="view-sessions" class="view-section">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+                    <div>
+                        <h3 class="fw-bold mb-1">Study Sessions</h3>
+                        <p class="text-muted mb-0">Log, track, and manage all your completed and planned study blocks.</p>
+                    </div>
+                    <button class="btn btn-primary rounded-pill px-3 align-self-start align-self-md-auto" onclick="ModalController.openSessionModal()">
+                        <i class="bi bi-plus-lg me-1"></i> Log Session
+                    </button>
+                </div>
+
+                <!-- Filters Bar -->
+                <div class="custom-card p-3 mb-4">
+                    <div class="row g-2 align-items-center">
+                        <div class="col-12 col-md-3">
+                            <select id="filter-date" class="form-select border-0 bg-body-tertiary fw-medium">
+                                <option value="all">All Dates</option>
+                                <option value="today">Today</option>
+                                <option value="tomorrow">Tomorrow</option>
+                                <option value="this-week">This Week</option>
+                                <option value="this-month">This Month</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <select id="filter-subject" class="form-select border-0 bg-body-tertiary fw-medium">
+                                <option value="all">All Subjects</option>
+                                <!-- Populated dynamically -->
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <select id="filter-status" class="form-select border-0 bg-body-tertiary fw-medium">
+                                <option value="all">All Statuses</option>
+                                <option value="Pending">Pending</option>
+                                <option value="Completed">Completed</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-3 text-end">
+                            <button id="reset-filters-btn" class="btn btn-outline-secondary w-100"><i class="bi bi-arrow-counterclockwise"></i> Reset Filters</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sessions Table / Cards -->
+                <div class="custom-card overflow-hidden">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Subject</th>
+                                    <th>Title</th>
+                                    <th>Date</th>
+                                    <th>Time</th>
+                                    <th>Duration</th>
+                                    <th>Status</th>
+                                    <th class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="sessions-table-body">
+                                <!-- Dynamic sessions table rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= GOALS VIEW ================= -->
+            <section id="view-goals" class="view-section">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h3 class="fw-bold mb-1">Study Goals</h3>
+                        <p class="text-muted mb-0">Set study hour milestones and track your target deadlines.</p>
+                    </div>
+                    <button class="btn btn-primary rounded-pill px-3" onclick="ModalController.openGoalModal()">
+                        <i class="bi bi-plus-lg me-1"></i> New Goal
+                    </button>
+                </div>
+
+                <div id="goals-grid" class="row g-3">
+                    <!-- Goals populated dynamically -->
+                </div>
+            </section>
+
+            <!-- ================= CALENDAR VIEW ================= -->
+            <section id="view-calendar" class="view-section">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h3 class="fw-bold mb-1">Study Calendar</h3>
+                        <p class="text-muted mb-0">Visual calendar view of scheduled study sessions.</p>
+                    </div>
+                    <button class="btn btn-primary rounded-pill px-3" onclick="ModalController.openSessionModal()">
+                        <i class="bi bi-plus-lg me-1"></i> Add Session
+                    </button>
+                </div>
+
+                <div class="custom-card p-3">
+                    <div id="calendar-container"></div>
+                </div>
+            </section>
+
+            <!-- ================= STATISTICS VIEW ================= -->
+            <section id="view-statistics" class="view-section">
+                <div class="mb-4">
+                    <h3 class="fw-bold mb-1">Analytics & Statistics</h3>
+                    <p class="text-muted mb-0">Visual insights into your study habits, performance, and progress over time.</p>
+                </div>
+
+                <div class="row g-4 mb-4">
+                    <div class="col-12 col-lg-8">
+                        <div class="custom-card p-4">
+                            <h6 class="fw-bold mb-3">Study Hours per Week</h6>
+                            <div style="height: 280px; position: relative;">
+                                <canvas id="chart-hours-week"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-4">
+                        <div class="custom-card p-4">
+                            <h6 class="fw-bold mb-3">Distribution by Subject</h6>
+                            <div style="height: 280px; position: relative;">
+                                <canvas id="chart-hours-subject"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-12 col-lg-4">
+                        <div class="custom-card p-4">
+                            <h6 class="fw-bold mb-3">Completed vs Pending</h6>
+                            <div style="height: 240px; position: relative;">
+                                <canvas id="chart-completed-pending"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-8">
+                        <div class="custom-card p-4">
+                            <h6 class="fw-bold mb-3">Monthly Study Progress (Hours)</h6>
+                            <div style="height: 240px; position: relative;">
+                                <canvas id="chart-monthly-progress"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= SETTINGS VIEW ================= -->
+            <section id="view-settings" class="view-section">
+                <div class="mb-4">
+                    <h3 class="fw-bold mb-1">Settings</h3>
+                    <p class="text-muted mb-0">Manage workspace preferences, data backups, and theme configurations.</p>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-12 col-md-6">
+                        <div class="custom-card p-4 mb-4">
+                            <h5 class="fw-bold mb-3"><i class="bi bi-palette text-primary me-2"></i>Appearance</h5>
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div>
+                                    <h6 class="mb-1 fw-semibold">Theme Mode</h6>
+                                    <p class="text-muted small mb-0">Choose between crisp Light or sleek Dark interface.</p>
+                                </div>
+                                <select id="setting-theme-select" class="form-select w-auto">
+                                    <option value="light">Light</option>
+                                    <option value="dark">Dark</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="custom-card p-4">
+                            <h5 class="fw-bold mb-3 text-danger"><i class="bi bi-exclamation-triangle text-danger me-2"></i>Data Management</h5>
+                            <p class="text-muted small">Export your data for safekeeping, restore from JSON backup, or reset default sample dataset.</p>
+                            
+                            <div class="d-flex flex-wrap gap-2 mt-3">
+                                <button class="btn btn-outline-primary" onclick="StorageManager.exportData()">
+                                    <i class="bi bi-download me-1"></i> Export JSON
+                                </button>
+                                <label class="btn btn-outline-secondary mb-0">
+                                    <i class="bi bi-upload me-1"></i> Import JSON
+                                    <input type="file" id="import-file-input" class="d-none" accept=".json" onchange="StorageManager.importData(event)">
+                                </label>
+                                <button class="btn btn-outline-warning" onclick="StorageManager.resetToSampleData()">
+                                    <i class="bi bi-arrow-counterclockwise me-1"></i> Reset Sample Data
+                                </button>
+                                <button class="btn btn-outline-danger" onclick="StorageManager.clearAllData()">
+                                    <i class="bi bi-trash me-1"></i> Clear All Data
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- SUBJECT MODAL -->
+    <div class="modal fade" id="subjectModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 custom-card">
+                <div class="modal-header border-bottom-0 pb-0">
+                    <h5 class="modal-title fw-bold" id="subjectModalTitle">Add Subject</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="subjectForm">
+                        <input type="hidden" id="subject-id">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Subject Name</label>
+                            <input type="text" id="subject-name" class="form-control" placeholder="e.g. Computer Science" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Subject Icon (Bootstrap Icon Class)</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i id="subject-icon-preview" class="bi bi-book"></i></span>
+                                <input type="text" id="subject-icon" class="form-control" placeholder="bi-laptop" value="bi-book" required>
+                            </div>
+                            <small class="text-muted">Supports icon names like <code>bi-calculator</code>, <code>bi-code-slash</code>, <code>bi-laptop</code>.</small>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Accent Color</label>
+                            <div class="d-flex gap-2 align-items-center" id="color-picker-container">
+                                <span class="color-dot-picker selected" style="background-color: #4f46e5;" data-color="#4f46e5"></span>
+                                <span class="color-dot-picker" style="background-color: #10b981;" data-color="#10b981"></span>
+                                <span class="color-dot-picker" style="background-color: #f59e0b;" data-color="#f59e0b"></span>
+                                <span class="color-dot-picker" style="background-color: #ec4899;" data-color="#ec4899"></span>
+                                <span class="color-dot-picker" style="background-color: #8b5cf6;" data-color="#8b5cf6"></span>
+                                <span class="color-dot-picker" style="background-color: #06b6d4;" data-color="#06b6d4"></span>
+                                <input type="hidden" id="subject-color" value="#4f46e5">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Description</label>
+                            <textarea id="subject-desc" class="form-control" rows="3" placeholder="Brief details about course syllabus or topic..."></textarea>
+                        </div>
+                        <div class="text-end mt-4">
+                            <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary px-4">Save Subject</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SESSION MODAL -->
+    <div class="modal fade" id="sessionModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 custom-card">
+                <div class="modal-header border-bottom-0 pb-0">
+                    <h5 class="modal-title fw-bold" id="sessionModalTitle">Log Study Session</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="sessionForm">
+                        <input type="hidden" id="session-id">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Subject</label>
+                            <select id="session-subject-id" class="form-select" required>
+                                <!-- Populated dynamically -->
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Session Title</label>
+                            <input type="text" id="session-title" class="form-control" placeholder="e.g. Chapter 4 Data Structures Review" required>
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-12 col-md-6">
+                                <label class="form-label fw-semibold">Date</label>
+                                <input type="date" id="session-date" class="form-control" required>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <label class="form-label fw-semibold">Start</label>
+                                <input type="time" id="session-start-time" class="form-control" required>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <label class="form-label fw-semibold">End</label>
+                                <input type="time" id="session-end-time" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Status</label>
+                            <select id="session-status" class="form-select">
+                                <option value="Pending">Pending</option>
+                                <option value="Completed">Completed</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Notes</label>
+                            <textarea id="session-notes" class="form-control" rows="2" placeholder="Key takeaways or study goals..."></textarea>
+                        </div>
+                        <div class="text-end mt-4">
+                            <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary px-4">Save Session</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- GOAL MODAL -->
+    <div class="modal fade" id="goalModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 custom-card">
+                <div class="modal-header border-bottom-0 pb-0">
+                    <h5 class="modal-title fw-bold" id="goalModalTitle">Create Study Goal</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="goalForm">
+                        <input type="hidden" id="goal-id">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Goal Title</label>
+                            <input type="text" id="goal-title" class="form-control" placeholder="e.g. Master Linear Algebra" required>
+                        </div>
+                        <div class="row g-2 mb-3">
+                            <div class="col-12 col-md-6">
+                                <label class="form-label fw-semibold">Target Hours</label>
+                                <input type="number" step="0.5" id="goal-target" class="form-control" placeholder="25" min="1" required>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label class="form-label fw-semibold">Deadline</label>
+                                <input type="date" id="goal-deadline" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Description</label>
+                            <textarea id="goal-desc" class="form-control" rows="3" placeholder="Target outcomes or exam prep milestone..."></textarea>
+                        </div>
+                        <div class="text-end mt-4">
+                            <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary px-4">Save Goal</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100;">
+        <div id="appToast" class="toast align-items-center border-0 shadow" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div id="toast-icon-wrapper" class="p-3 text-white rounded-start d-flex align-items-center justify-content-center" style="width: 50px;">
+                    <i id="toast-icon" class="bi bi-info-circle-fill fs-5"></i>
+                </div>
+                <div class="toast-body d-flex align-items-center">
+                    <span id="toast-message" class="fw-medium">Notification message</span>
+                </div>
+                <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FullCalendar JS -->
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+
+  <script src="main.study.js"></script>
+</body>
+</html>
